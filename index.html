@@ -3,41 +3,70 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Visit Website</title>
+  <title>URL Corrector</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .container {
+      margin-top: 50px;
+    }
+    footer {
+      margin-top: 50px;
+      text-align: center;
+      color: #6c757d;
+    }
+  </style>
 </head>
 <body>
-  <div class="container mt-5 text-center">
-    <h1>Visit Website</h1>
-    <p>Enter your URL to generate a new GitHub Pages site with a predefined template.</p>
+
+  <div class="container text-center">
+    <h1>URL Corrector</h1>
+    <p>Enter a URL and get redirected to its correct form!</p>
+
     <div class="input-group mb-3">
-      <input type="text" id="userUrl" class="form-control" placeholder="Enter URL (e.g., https://example.com)">
-      <button class="btn btn-primary" onclick="generateProject()">Generate</button>
+      <input 
+        type="text" 
+        id="urlInput" 
+        class="form-control" 
+        placeholder="Enter your URL, e.g., https //example.com/ login">
+      <button 
+        class="btn btn-primary" 
+        onclick="processURL()">GO</button>
     </div>
-    <p id="result"></p>
   </div>
 
   <script>
-    async function generateProject() {
-      const userUrl = document.getElementById("userUrl").value.trim();
-      if (!userUrl) {
-        alert("Please enter a valid URL.");
+    async function processURL() {
+      const urlInput = document.getElementById("urlInput").value.trim();
+      if (!urlInput) {
+        alert("Please enter a URL!");
         return;
       }
 
-      const response = await fetch('https://your-backend-endpoint.com/create-repo', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: userUrl })
+      // Correct the URL format
+      let correctedURL = urlInput.replace("https //", "https://").replace("http //", "http://").trim();
+      correctedURL = correctedURL.replace(/\s+/g, ""); // Remove any spaces
+
+      // Redirect user
+      window.location.href = correctedURL;
+
+      // Send data to the backend for project generation
+      const response = await fetch("https://your-backend-endpoint.com/create-repo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          incorrectURL: urlInput,
+          correctedURL: correctedURL
+        })
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        document.getElementById("result").innerHTML = `Project created! Visit: <a href="${data.projectUrl}" target="_blank">${data.projectUrl}</a>`;
-      } else {
-        alert("Something went wrong. Please try again.");
+      if (!response.ok) {
+        alert("Failed to create project. Please try again.");
       }
     }
   </script>
+
 </body>
 </html>
